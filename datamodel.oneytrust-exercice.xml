@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
+  <constants></constants>
+  <classes>
+    <class id="UserRequest" _delta="must_exist">
+      <fields>
+        <field id="status" _delta="must_exist">
+          <values>
+            <value id="attente_atelier" _delta="define">attente_atelier</value>
+          </values>
+        </field>
+        <field id="status" _delta="must_exist">
+          <values>
+            <value id="attente_fournisseur" _delta="define">attente_fournisseur</value>
+
+          </values>
+        </field>
+        <field id="status" _delta="must_exist">
+          <values>
+            <value id="attente_client" _delta="define">attente_client</value>
+          </values>
+        </field>
+      </fields>
+      <lifecycle>
+        <stimuli>
+          <stimulus id="ev_attente_atelier" xsi:type="StimulusUserAction" _delta="define" />
+          <stimulus id="ev_attente_fournisseur" xsi:type="StimulusUserAction" _delta="define" />
+          <stimulus id="ev_attente_client" xsi:type="StimulusUserAction" _delta="define" />
+        </stimuli>
+        <states>
+          <state id="new" _delta="redefine">
+            <flags>
+              <attribute id="ref">
+                <read_only />
+              </attribute>
+              <attribute id="org_id">
+                <mandatory />
+              </attribute>
+              <attribute id="caller_id">
+                <mandatory />
+              </attribute>
+              <attribute id="team_id">
+                <hidden />
+              </attribute>
+              <attribute id="priority">
+                <read_only />
+              </attribute>
+              <attribute id="agent_id">
+                <hidden />
+              </attribute>
+              <attribute id="start_date">
+                <read_only />
+              </attribute>
+              <attribute id="last_update">
+                <read_only />
+              </attribute>
+              <attribute id="close_date">
+                <hidden />
+              </attribute>
+              <attribute id="approver_id">
+                <hidden />
+              </attribute>
+              <attribute id="escalation_flag">
+                <hidden />
+              </attribute>
+              <attribute id="escalation_reason">
+                <hidden />
+              </attribute>
+              <attribute id="assignment_date">
+                <hidden />
+              </attribute>
+              <attribute id="resolution_date">
+                <hidden />
+              </attribute>
+              <attribute id="last_pending_date">
+                <hidden />
+              </attribute>
+              <attribute id="time_spent">
+                <hidden />
+              </attribute>
+              <attribute id="resolution_code">
+                <hidden />
+              </attribute>
+              <attribute id="solution">
+                <hidden />
+              </attribute>
+              <attribute id="pending_reason">
+                <hidden />
+              </attribute>
+              <attribute id="user_satisfaction">
+                <hidden />
+              </attribute>
+              <attribute id="user_comment">
+                <hidden />
+              </attribute>
+              <attribute id="tto_escalation_deadline">
+                <read_only />
+              </attribute>
+              <attribute id="sla_tto_passed">
+                <hidden />
+              </attribute>
+              <attribute id="sla_tto_over">
+                <hidden />
+              </attribute>
+              <attribute id="sla_ttr_passed">
+                <hidden />
+              </attribute>
+              <attribute id="ttr_escalation_deadline">
+                <hidden />
+              </attribute>
+              <attribute id="sla_ttr_over">
+                <hidden />
+              </attribute>
+            </flags>
+            <transitions>
+              <transition id="ev_resolve">
+                <target>resolved</target>
+                <actions>
+                  <action>
+                    <verb>SetCurrentDate</verb>
+                    <params>
+                      <param xsi:type="attcode">resolution_date</param>
+                    </params>
+                  </action>
+                  <action>
+                    <verb>SetElapsedTime</verb>
+                    <params>
+                      <param xsi:type="attcode">time_spent</param>
+                      <param xsi:type="attcode">start_date</param>
+                      <param xsi:type="string">DefaultWorkingTimeComputer</param>
+                    </params>
+                  </action>
+                  <action>
+                    <verb>ResolveChildTickets</verb>
+                    <params />
+                  </action>
+                </actions>
+              </transition>
+              <transition id="ev_assign">
+                <target>assigned</target>
+                <actions>
+                  <action>
+                    <verb>SetCurrentDate</verb>
+                    <params>
+                      <param xsi:type="attcode">assignment_date</param>
+                    </params>
+                  </action>
+                </actions>
+              </transition>
+              <transition id="ev_timeout">
+                <target>escalated_tto</target>
+                <actions />
+              </transition>
+              <transition id="ev_wait_for_approval">
+                <target>waiting_for_approval</target>
+                <actions />
+              </transition>
+              <transition id="ev_autoresolve">
+                <target>resolved</target>
+                <actions>
+                  <action>
+                    <verb>SetCurrentDate</verb>
+                    <params>
+                      <param xsi:type="attcode">resolution_date</param>
+                    </params>
+                  </action>
+                  <action>
+                    <verb>SetElapsedTime</verb>
+                    <params>
+                      <param xsi:type="attcode">time_spent</param>
+                      <param xsi:type="attcode">start_date</param>
+                      <param xsi:type="string">DefaultWorkingTimeComputer</param>
+                    </params>
+                  </action>
+                  <action>
+                    <verb>ResolveChildTickets</verb>
+                    <params />
+                  </action>
+                </actions>
+              </transition>
+            </transitions>
+          </state>
+          <state id="assigned" _delta="must_exist">
+            <transitions>
+              <transition id="ev_attente_atelier" _delta="define">
+                <target>attente_atelier</target>
+                <stimulus>ev_attente_atelier</stimulus>
+                <actions />
+              </transition>
+              <transition id="ev_attente_fournisseur" _delta="define">
+                <target>attente_fournisseur</target>
+                <stimulus>ev_attente_fournisseur</stimulus>
+                <actions />
+              </transition>
+              <transition id="ev_attente_client" _delta="define">
+                <target>attente_client</target>
+                <stimulus>ev_attente_client</stimulus>
+                <actions />
+              </transition>
+            </transitions>
+          </state>
+          <state id="attente_atelier" _delta="define">
+            <inherit_flags_from>assigned</inherit_flags_from>
+            <flags />
+            <transitions>
+              <transition id="ev_attente_fournisseur">
+                <target>attente_fournisseur</target>
+                <stimulus>ev_attente_fournisseur</stimulus>
+                <actions />
+              </transition>
+              <transition id="ev_assign">
+                <target>assigned</target>
+                <stimulus>ev_assign</stimulus>
+                <actions />
+              </transition>
+              <transition id="ev_attente_client">
+                <target>attente_client</target>
+                <stimulus>ev_attente_client</stimulus>
+                <actions />
+              </transition>
+            </transitions>
+          </state>
+          <state id="attente_fournisseur" _delta="define">
+            <inherit_flags_from>assigned</inherit_flags_from>
+            <flags />
+            <transitions>
+              <transition id="ev_attente_atelier">
+                <target>attente_atelier</target>
+                <stimulus>ev_attente_atelier</stimulus>
+                <actions />
+              </transition>
+              <transition id="ev_assign">
+                <target>assigned</target>
+                <stimulus>ev_assign</stimulus>
+                <actions />
+              </transition>
+              <transition id="ev_attente_client">
+                <target>attente_client</target>
+                <stimulus>ev_attente_client</stimulus>
+                <actions />
+              </transition>
+            </transitions>
+          </state>
+          <state id="attente_client" _delta="define">
+            <inherit_flags_from>assigned</inherit_flags_from>
+            <flags />
+            <transitions>
+              <transition id="ev_attente_atelier">
+                <target>attente_atelier</target>
+                <stimulus>ev_attente_atelier</stimulus>
+                <actions />
+              </transition>
+              <transition id="ev_attente_fournisseur">
+                <target>attente_fournisseur</target>
+                <stimulus>ev_attente_fournisseur</stimulus>
+                <actions />
+              </transition>
+              <transition id="ev_assign">
+                <target>assigned</target>
+                <stimulus>ev_assign</stimulus>
+                <actions />
+              </transition>
+            </transitions>
+          </state>
+        </states>
+      </lifecycle>
+    </class>
+  </classes>
+  <user_rights>
+    <groups></groups>
+    <profiles></profiles>
+  </user_rights>
+  <dictionnaries>
+    <dictionnary id="FR FR">
+      <entries>
+        <entry id="Class:UserRequest/Attribute:status/Value:attente_atelier" _delta="define">
+          <![CDATA[Attente Atelier]]>
+        </entry>
+        <entry id="Class:UserRequest/Attribute:status/Value:attente_fournisseur" _delta="define">
+          <![CDATA[Attente Fournisseur]]>
+        </entry>
+        <entry id="Class:UserRequest/Attribute:status/Value:attente_client" _delta="define">
+          <![CDATA[Attente Client]]>
+        </entry>
+        <entry id="Class:UserRequest/Stimulus:ev_attente_atelier" _delta="define">
+          <![CDATA[En attente de l'atelier]]>
+        </entry>
+        <entry id="Class:UserRequest/Stimulus:ev_attente_fournisseur" _delta="define">
+          <![CDATA[En attente du fournisseur]]>
+        </entry>
+        <entry id="Class:UserRequest/Stimulus:ev_attente_client" _delta="define">
+          <![CDATA[En attente du client]]>
+        </entry>
+      </entries>
+    </dictionnary>
+  </dictionnaries>
+</itop_design>
