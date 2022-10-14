@@ -16,6 +16,7 @@ SetupWebPage::AddModule(
 		//
 		'dependencies' => array(
 			'itop-request-mgmt/3.0.2',
+			'combodo-dispatch-userrequest/1.1.11',
 		),
 		'mandatory' => false,
 		'visible' => true,
