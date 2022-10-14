@@ -218,6 +218,10 @@
                 <stimulus>ev_attente_client</stimulus>
                 <actions />
               </transition>
+              <transition id="ev_dispatch" _delta="define">
+                <target>dispatched</target>
+                <actions />
+              </transition>
             </transitions>
           </state>
           <state id="attente_fournisseur" _delta="define">
@@ -237,6 +241,10 @@
               <transition id="ev_attente_client">
                 <target>attente_client</target>
                 <stimulus>ev_attente_client</stimulus>
+                <actions />
+              </transition>
+              <transition id="ev_dispatch" _delta="define">
+                <target>dispatched</target>
                 <actions />
               </transition>
             </transitions>
@@ -260,6 +268,74 @@
                 <stimulus>ev_assign</stimulus>
                 <actions />
               </transition>
+              <transition id="ev_dispatch" _delta="define">
+                <target>dispatched</target>
+                <actions />
+              </transition>
+            </transitions>
+          </state>
+          <state id="dispatched" _delta="redefine">
+            <inherit_flags_from>new</inherit_flags_from>
+            <flags>
+              <attribute id="team_id">
+                <mandatory />
+                <must_prompt />
+              </attribute>
+            </flags>
+            <transitions>
+              <transition id="ev_assign">
+                <target>assigned</target>
+                <actions>
+                  <action>
+                    <verb>SetCurrentDate</verb>
+                    <params>
+                      <param xsi:type="string">assignment_date</param>
+                    </params>
+                  </action>
+                </actions>
+              </transition>
+              <transition id="ev_timeout">
+                <target>escalated_tto</target>
+                <actions />
+              </transition>
+              <transition id="ev_autoresolve">
+                <target>resolved</target>
+                <actions>
+                  <action>
+                    <verb>SetCurrentDate</verb>
+                    <params>
+                      <param xsi:type="string">resolution_date</param>
+                    </params>
+                  </action>
+                  <action>
+                    <verb>SetElapsedTime</verb>
+                    <params>
+                      <param xsi:type="string">time_spent</param>
+                      <param xsi:type="string">start_date</param>
+                      <param xsi:type="string">DefaultWorkingTimeComputer</param>
+                    </params>
+                  </action>
+                  <action>
+                    <verb>ResolveChildTickets</verb>
+                    <params />
+                  </action>
+                </actions>
+              </transition>
+              <transition id="ev_attente_client">
+                <target>attente_client</target>
+                <stimulus>ev_attente_client</stimulus>
+                <actions />
+              </transition>
+              <transition id="ev_attente_fournisseur">
+                <target>attente_fournisseur</target>
+                <stimulus>ev_attente_fournisseur</stimulus>
+                <actions />
+              </transition>
+              <transition id="ev_attente_atelier">
+                <target>attente_atelier</target>
+                <stimulus>ev_attente_atelier</stimulus>
+                <actions />
+              </transition>
             </transitions>
           </state>
         </states>
@@ -270,28 +346,4 @@
     <groups></groups>
     <profiles></profiles>
   </user_rights>
-  <dictionnaries>
-    <dictionnary id="FR FR">
-      <entries>
-        <entry id="Class:UserRequest/Attribute:status/Value:attente_atelier" _delta="define">
-          <![CDATA[Attente Atelier]]>
-        </entry>
-        <entry id="Class:UserRequest/Attribute:status/Value:attente_fournisseur" _delta="define">
-          <![CDATA[Attente Fournisseur]]>
-        </entry>
-        <entry id="Class:UserRequest/Attribute:status/Value:attente_client" _delta="define">
-          <![CDATA[Attente Client]]>
-        </entry>
-        <entry id="Class:UserRequest/Stimulus:ev_attente_atelier" _delta="define">
-          <![CDATA[En attente de l'atelier]]>
-        </entry>
-        <entry id="Class:UserRequest/Stimulus:ev_attente_fournisseur" _delta="define">
-          <![CDATA[En attente du fournisseur]]>
-        </entry>
-        <entry id="Class:UserRequest/Stimulus:ev_attente_client" _delta="define">
-          <![CDATA[En attente du client]]>
-        </entry>
-      </entries>
-    </dictionnary>
-  </dictionnaries>
 </itop_design>
