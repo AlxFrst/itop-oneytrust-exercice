@@ -136,26 +136,71 @@
                   </action>
                 </actions>
               </transition>
-              <transition id="ev_assign">
-                <target>assigned</target>
-                <actions>
-                  <action>
-                    <verb>SetCurrentDate</verb>
-                    <params>
-                      <param xsi:type="attcode">assignment_date</param>
-                    </params>
-                  </action>
-                </actions>
-              </transition>
               <transition id="ev_timeout">
                 <target>escalated_tto</target>
+                <actions />
+              </transition>
+              <transition id="ev_timeout">
+                <target>escalated_ttr</target>
                 <actions />
               </transition>
               <transition id="ev_wait_for_approval">
                 <target>waiting_for_approval</target>
                 <actions />
               </transition>
-              <transition id="ev_autoresolve">
+              <transition id="ev_dispatch" _delta="define">
+                <target>dispatched</target>
+                <actions>
+                  <action>
+                    <verb>Reset</verb>
+                    <params>
+                      <param xsi:type="string">agent_id</param>
+                    </params>
+                  </action>
+                </actions>
+              </transition>
+            </transitions>
+          </state>
+          <state id="assigned" _delta="redefine">
+            <inherit_flags_from>new</inherit_flags_from>
+            <flags>
+              <attribute id="request_type">
+                <mandatory />
+              </attribute>
+              <attribute id="team_id">
+                <mandatory />
+                <must_prompt />
+                <read_only />
+              </attribute>
+              <attribute id="agent_id">
+                <mandatory />
+                <must_prompt />
+                <read_only />
+              </attribute>
+              <attribute id="approver_id">
+                <read_only />
+              </attribute>
+              <attribute id="assignment_date">
+                <read_only />
+              </attribute>
+              <attribute id="tto_escalation_deadline">
+                <hidden />
+              </attribute>
+              <attribute id="sla_tto_passed">
+                <read_only />
+              </attribute>
+              <attribute id="sla_tto_over">
+                <read_only />
+              </attribute>
+              <attribute id="ttr_escalation_deadline">
+                <read_only />
+              </attribute>
+              <attribute id="caller_id" />
+              <attribute id="escalation_flag" />
+              <attribute id="escalation_reason" />
+            </flags>
+            <transitions>
+              <transition id="ev_resolve">
                 <target>resolved</target>
                 <actions>
                   <action>
@@ -178,23 +223,27 @@
                   </action>
                 </actions>
               </transition>
-            </transitions>
-          </state>
-          <state id="assigned" _delta="must_exist">
-            <transitions>
-              <transition id="ev_attente_atelier" _delta="define">
-                <target>attente_atelier</target>
-                <stimulus>ev_attente_atelier</stimulus>
+              <transition id="ev_timeout">
+                <target>escalated_ttr</target>
                 <actions />
               </transition>
-              <transition id="ev_attente_fournisseur" _delta="define">
+              <transition id="ev_attente_client">
+                <target>attente_client</target>
+                <stimulus>ev_attente_client</stimulus>
+                <actions />
+              </transition>
+              <transition id="ev_attente_fournisseur">
                 <target>attente_fournisseur</target>
                 <stimulus>ev_attente_fournisseur</stimulus>
                 <actions />
               </transition>
-              <transition id="ev_attente_client" _delta="define">
-                <target>attente_client</target>
-                <stimulus>ev_attente_client</stimulus>
+              <transition id="ev_attente_atelier">
+                <target>attente_atelier</target>
+                <stimulus>ev_attente_atelier</stimulus>
+                <actions />
+              </transition>
+              <transition id="ev_dispatch" _delta="define">
+                <target>redispatched</target>
                 <actions />
               </transition>
             </transitions>
@@ -219,7 +268,7 @@
                 <actions />
               </transition>
               <transition id="ev_dispatch" _delta="define">
-                <target>dispatched</target>
+                <target>redispatched</target>
                 <actions />
               </transition>
             </transitions>
@@ -244,7 +293,7 @@
                 <actions />
               </transition>
               <transition id="ev_dispatch" _delta="define">
-                <target>dispatched</target>
+                <target>redispatched</target>
                 <actions />
               </transition>
             </transitions>
@@ -269,7 +318,7 @@
                 <actions />
               </transition>
               <transition id="ev_dispatch" _delta="define">
-                <target>dispatched</target>
+                <target>redispatched</target>
                 <actions />
               </transition>
             </transitions>
@@ -283,6 +332,14 @@
               </attribute>
             </flags>
             <transitions>
+              <transition id="ev_timeout">
+                <target>escalated_tto</target>
+                <actions />
+              </transition>
+              <transition id="ev_timeout">
+                <target>escalated_ttr</target>
+                <actions />
+              </transition>
               <transition id="ev_assign">
                 <target>assigned</target>
                 <actions>
@@ -291,33 +348,6 @@
                     <params>
                       <param xsi:type="string">assignment_date</param>
                     </params>
-                  </action>
-                </actions>
-              </transition>
-              <transition id="ev_timeout">
-                <target>escalated_tto</target>
-                <actions />
-              </transition>
-              <transition id="ev_autoresolve">
-                <target>resolved</target>
-                <actions>
-                  <action>
-                    <verb>SetCurrentDate</verb>
-                    <params>
-                      <param xsi:type="string">resolution_date</param>
-                    </params>
-                  </action>
-                  <action>
-                    <verb>SetElapsedTime</verb>
-                    <params>
-                      <param xsi:type="string">time_spent</param>
-                      <param xsi:type="string">start_date</param>
-                      <param xsi:type="string">DefaultWorkingTimeComputer</param>
-                    </params>
-                  </action>
-                  <action>
-                    <verb>ResolveChildTickets</verb>
-                    <params />
                   </action>
                 </actions>
               </transition>
@@ -335,6 +365,50 @@
                 <target>attente_atelier</target>
                 <stimulus>ev_attente_atelier</stimulus>
                 <actions />
+              </transition>
+            </transitions>
+          </state>
+          <state id="pending" _delta="delete">
+            <inherit_flags_from>assigned</inherit_flags_from>
+            <flags>
+              <attribute id="last_pending_date">
+                <read_only />
+              </attribute>
+              <attribute id="pending_reason">
+                <mandatory />
+                <must_prompt />
+              </attribute>
+              <attribute id="ttr_escalation_deadline">
+                <hidden />
+              </attribute>
+            </flags>
+            <transitions>
+              <transition id="ev_assign">
+                <target>assigned</target>
+                <actions></actions>
+              </transition>
+              <transition id="ev_autoresolve">
+                <target>resolved</target>
+                <actions>
+                  <action>
+                    <verb>SetCurrentDate</verb>
+                    <params>
+                      <param xsi:type="attcode">resolution_date</param>
+                    </params>
+                  </action>
+                  <action>
+                    <verb>SetElapsedTime</verb>
+                    <params>
+                      <param xsi:type="attcode">time_spent</param>
+                      <param xsi:type="attcode">start_date</param>
+                      <param xsi:type="string">DefaultWorkingTimeComputer</param>
+                    </params>
+                  </action>
+                  <action>
+                    <verb>ResolveChildTickets</verb>
+                    <params />
+                  </action>
+                </actions>
               </transition>
             </transitions>
           </state>
